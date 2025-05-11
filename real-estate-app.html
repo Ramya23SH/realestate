@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Real Estate App</title>
+<style>
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  body, html {
+    margin: 0; padding: 0;
+    font-family: 'Georgia', serif;
+    background: #f4f2f0;
+    color: #3a3a3a;
+    min-height: 100vh;
+  }
+  #app {
+    min-height: 100vh;
+    max-width: 600px;
+    margin: 1rem auto 2rem;
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  header {
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    padding: 1rem 2rem;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.8rem;
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+    letter-spacing: 1.2px;
+    user-select: none;
+  }
+  main {
+    flex: 1;
+    padding: 1.5rem 2rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #bdc3c7 transparent;
+  }
+  main::-webkit-scrollbar {
+    width: 8px;
+  }
+  main::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  main::-webkit-scrollbar-thumb {
+    background-color: #bdc3c7;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  button {
+    cursor: pointer;
+    font-family: 'Georgia', serif;
+    border-radius: 5px;
+    border: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  /* Form styles */
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+  label {
+    font-weight: 600;
+    margin-top: 1.2rem;
+    font-size: 1.1rem;
+    color: #34495e;
+  }
+  input[type="text"], input[type="email"], input[type="password"], input[type="tel"], select {
+    padding: 0.8rem 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-top: 0.3rem;
+    font-size: 1.05rem;
+    font-family: 'Georgia', serif;
+    color: #2c3e50;
+    background: #f9f8f6;
+    box-shadow: inset 1px 1px 3px rgba(255,255,255,0.8);
+  }
+  input[type="radio"] {
+    margin-right: 0.7rem;
+    accent-color: #2c3e50;
+  }
+  .form-row {
+    display: flex;
+    align-items: center;
+    margin-top: 0.9rem;
+  }
+  .form-row > label {
+    margin: 0;
+    font-size: 1.05rem;
+    color: #34495e;
+  }
+  .btn-primary {
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    padding: 0.85rem 1.2rem;
+    margin-top: 1.8rem;
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: 0.5px;
+    box-shadow: 2px 5px 14px rgba(44,62,80,0.3);
+    user-select: none;
+  }
+  .btn-primary:hover,
+  .btn-primary:focus {
+    background-color: #1a242f;
+    outline: none;
+  }
+  .link-button {
+    background: none;
+    border: none;
+    color: #2c3e50;
+    text-decoration: underline;
+    font-size: 1rem;
+    margin-top: 1.2rem;
+    padding: 0;
+    cursor: pointer;
+    align-self: center;
+    font-style: italic;
+  }
+  .link-button:hover,
+  .link-button:focus {
+    color: #34495e;
+    outline: none;
+  }
+  /* Navigation Tabs */
+  nav#bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    padding: 0.9rem 0;
+    font-size: 1.1rem;
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+    box-shadow: inset 0 1px 3px rgba(236, 240, 241, 0.15);
+  }
+  nav#bottom-nav button {
+    flex: 1;
+    background: none;
+    border: none;
+    color: #ecf0f1;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0.8rem 0;
+    user-select: none;
+    letter-spacing: 0.1em;
+    transition: background-color 0.3s ease;
+  }
+  nav#bottom-nav button.active,
+  nav#bottom-nav button:hover,
+  nav#bottom-nav button:focus {
+    background-color: #1a242f;
+    outline: none;
+  }
+  /* Property Cards */
+  .property-card {
+    border: 1px solid #dcdcdf;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 3px 6px rgba(140, 117, 92, 0.12);
+    background: #faf9f6;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease;
+  }
+  .property-card:hover, .property-card:focus {
+    box-shadow: 0 5px 14px rgba(140, 117, 92, 0.3);
+    outline: none;
+  }
+  .property-card img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .property-info {
+    padding: 0.75rem 1rem;
+  }
+  .property-title {
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: #5d4a34;
+    margin: 0.35rem 0;
+  }
+  .property-details {
+    font-size: 1rem;
+    color: #837756;
+    margin-bottom: 0.35rem;
+  }
+  .filter-group {
+    margin-bottom: 1.5rem;
+  }
+  .filter-group label {
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    display: block;
+    font-size: 1.15rem;
+    color: #5d4a34;
+  }
+  select, input[type=range], input[type=text] {
+    width: 100%;
+    font-size: 1.1rem;
+    font-family: 'Georgia', serif;
+    background: #fbf9f7;
+    border: 1px solid #b6a88a;
+    box-shadow: inset 1px 1px 4px rgba(255,255,255,0.7);
+    color: #5d4a34;
+  }
+  /* Utility */
+  .hidden {
+    display: none !important;
+  }
+  /* Scroll bar fix */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #b6a88a;
+    border-radius: 5px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #9c8e67;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 400px) {
+    #app {
+      max-width: 100vw;
+      margin: 0;
+      border-radius: 0;
+      box-shadow: none;
+      height: 100vh;
+    }
+    header {
+      font-size: 1.3rem;
+      padding: 0.7rem 1rem;
+    }
+    main {
+      padding: 0.7rem 1rem;
+    }
+    .property-title {
+      font-size: 1.15rem;
+    }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="header-title">Real Estate App</header>
+  <main id="main-content" tabindex="0">
+    <!-- Dynamic content will be injected here -->
+  </main>
+  <nav id="bottom-nav" class="hidden" aria-label="Main navigation">
+    <button id="nav-explore" class="active" aria-current="page" aria-label="Explore Properties">Explore</button>
+    <button id="nav-favorites" aria-label="Favorites">Favorites</button>
+    <button id="nav-dashboard" aria-label="Dashboard">Dashboard</button>
+    <button id="nav-logout" aria-label="Logout" style="flex-basis: 40px;">Logout</button>
+  </nav>
+</div>
+<script>
+(() => {
+  const app = document.getElementById('app');
+  const mainContent = document.getElementById('main-content');
+  const bottomNav = document.getElementById('bottom-nav');
+  const headerTitle = document.getElementById('header-title');
+
+  // Navigation buttons
+  const navExploreBtn = document.getElementById('nav-explore');
+  const navFavoritesBtn = document.getElementById('nav-favorites');
+  const navDashboardBtn = document.getElementById('nav-dashboard');
+  const navLogoutBtn = document.getElementById('nav-logout');
+
+  // State
+  let currentUser = null;
+  let users = {};
+  let properties = [];
+  let favorites = [];
+  let recentlyVisited = [];
+  let filterOptions = {
+    searchLocation: '',
+    minPrice: 0,
+    maxPrice: 1000000,
+    propertyType: 'any',
+    bedrooms: 'any',
+    furnished: 'any',
+    saleOrRent: 'any'
+  };
+
+  // Load from localStorage
+  function loadFromStorage() {
+    const u = localStorage.getItem('re_users');
+    const cu = localStorage.getItem('re_current_user');
+    const f = localStorage.getItem('re_favorites');
+    const rv = localStorage.getItem('re_recently_visited');
+    if(u) users = JSON.parse(u);
+    if(cu) currentUser = JSON.parse(cu);
+    if(f) favorites = JSON.parse(f);
+    if(rv) recentlyVisited = JSON.parse(rv);
+  }
+  function saveToStorage() {
+    localStorage.setItem('re_users', JSON.stringify(users));
+    localStorage.setItem('re_current_user', JSON.stringify(currentUser));
+    localStorage.setItem('re_favorites', JSON.stringify(favorites));
+    localStorage.setItem('re_recently_visited', JSON.stringify(recentlyVisited));
+  }
+
+  // Simple mock properties data
+  function loadMockProperties() {
+    properties = [
+      {
+        id: 'prop1',
+        title: 'Modern Family House',
+        price: 250000,
+        size: 1800,
+        location: 'New York',
+        bedrooms: 4,
+        furnished: true,
+        saleOrRent: 'sale',
+        amenities: ['Wi-Fi', 'Parking', 'Gym'],
+        images: ['https://images.unsplash.com/photo-1560448204-fd3b2e7bed13?auto=format&fit=crop&w=500&q=60'],
+        description: 'Beautiful modern family house located in the heart of New York.'
+      },
+      {
+        id: 'prop2',
+        title: 'Cozy Apartment',
+        price: 1200,
+        size: 750,
+        location: 'San Francisco',
+        bedrooms: 2,
+        furnished: false,
+        saleOrRent: 'rent',
+        amenities: ['Wi-Fi', 'Parking'],
+        images: ['https://images.unsplash.com/photo-1505692794403-9bf49f0619da?auto=format&fit=crop&w=500&q=60'],
+        description: 'Cozy unfurnished apartment ideal for singles or couples.'
+      },
+      {
+        id: 'prop3',
+        title: 'Downtown Flat',
+        price: 2000,
+        size: 950,
+        location: 'Chicago',
+        bedrooms: 3,
+        furnished: true,
+        saleOrRent: 'rent',
+        amenities: ['Wi-Fi', 'Gym'],
+        images: ['https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=500&q=60'],
+        description: 'Modern furnished flat located downtown with great amenities.'
+      },
+      {
+        id: 'prop4',
+        title: 'Luxury Villa',
+        price: 850000,
+        size: 3500,
+        location: 'Miami',
+        bedrooms: 5,
+        furnished: true,
+        saleOrRent: 'sale',
+        amenities: ['Wi-Fi', 'Parking', 'Gym', 'Pool'],
+        images: ['https://images.unsplash.com/photo-1600566758999-3c0736380c13?auto=format&fit=crop&w=500&q=60'],
+        description: 'Exclusive luxury villa with swimming pool, gym and parking.'
+      }
+    ];
+  }
+
+  // Utility to format price with currency
+  function formatPrice(amount) {
+    return '$' + amount.toLocaleString();
+  }
+
+  // Utility to check if user is logged in
+  function isLoggedIn() {
+    return currentUser !== null;
+  }
+
+  // Show login/register page
+  function showAuthPage() {
+    headerTitle.textContent = 'Welcome to Real Estate';
+    bottomNav.classList.add('hidden');
+    mainContent.innerHTML = `
+      <section id="auth-section">
+        <form id="login-form" aria-label="Login form" novalidate>
+          <label for="email-input">Email</label>
+          <input type="email" id="email-input" placeholder="Enter your email" required autocomplete="username" />
+          <label for="password-input">Password</label>
+          <input type="password" id="password-input" placeholder="Enter your password" required autocomplete="current-password" />
+          <button class="btn-primary" type="submit">Login</button>
+        </form>
+        <button class="link-button" id="show-register-btn">Don't have an account? Register</button>
+      </section>
+    `;
+    // Add event listeners
+    const loginForm = document.getElementById('login-form');
+    const showRegisterBtn = document.getElementById('show-register-btn');
+    loginForm.onsubmit = evt => {
+      evt.preventDefault();
+      loginUser();
+    };
+    showRegisterBtn.onclick = () => showRegisterPage();
+  }
+
+  // Show Registration page
+  function showRegisterPage() {
+    headerTitle.textContent = 'Register';
+    bottomNav.classList.add('hidden');
+    mainContent.innerHTML = `
+      <section id="register-section">
+        <form id="register-form" aria-label="Registration form" novalidate>
+          <label for="reg-email-input">Email</label>
+          <input type="email" id="reg-email-input" placeholder="Enter your email" required autocomplete="email" />
+          <label for="reg-phone-input">Phone Number</label>
+          <input type="tel" id="reg-phone-input" placeholder="Enter your phone number" required autocomplete="tel" />
+          <label for="reg-password-input">Password</label>
+          <input type="password" id="reg-password-input" placeholder="Enter your password" required autocomplete="new-password" />
+          <label>User Type</label>
+          <div class="form-row">
+            <input type="radio" id="user-buyer" name="user-type" value="buyer" checked />
+            <label for="user-buyer">Buyer</label>
+          </div>
+          <div class="form-row">
+            <input type="radio" id="user-renter" name="user-type" value="renter" />
+            <label for="user-renter">Renter</label>
+          </div>
+          <button class="btn-primary" type="submit">Register</button>
+        </form>
+        <button class="link-button" id="show-login-btn">Already have an account? Login</button>
+      </section>
+    `;
+    const registerForm = document.getElementById('register-form');
+    const showLoginBtn = document.getElementById('show-login-btn');
+    registerForm.onsubmit = evt => {
+      evt.preventDefault();
+      registerUser();
+    };
+    showLoginBtn.onclick = () => showAuthPage();
+  }
+
+  // Login function
+  function loginUser() {
+    const email = document.getElementById('email-input').value.trim().toLowerCase();
+    const password = document.getElementById('password-input').value;
+    if(!email || !password) {
+      alert('Please enter email and password');
+      return;
+    }
+    if(users[email] && users[email].password === password) {
+      currentUser = { email, ...users[email] };
+      saveToStorage();
+      showExplorePage();
+      bottomNav.classList.remove('hidden');
+      highlightNavButton(navExploreBtn);
+    } else {
+      alert('Invalid email or password');
+    }
+  }
+
+  // Register function
+  function registerUser() {
+    const email = document.getElementById('reg-email-input').value.trim().toLowerCase();
+    const phone = document.getElementById('reg-phone-input').value.trim();
+    const password = document.getElementById('reg-password-input').value;
+    const userType = document.querySelector('input[name="user-type"]:checked').value;
+    if(!email || !phone || !password) {
+      alert('Please fill all required fields');
+      return;
+    }
+    if(users[email]) {
+      alert('Email is already registered');
+      return;
+    }
+    users[email] = { password, phone, userType };
+    currentUser = { email, password, phone, userType };
+    saveToStorage();
+    alert('Registration successful! Logged in as ' + userType);
+    showExplorePage();
+    bottomNav.classList.remove('hidden');
+    highlightNavButton(navExploreBtn);
+  }
+
+  // Highlight nav button
+  function highlightNavButton(button) {
+    [navExploreBtn, navFavoritesBtn, navDashboardBtn].forEach(btn => btn.classList.remove('active'));
+    button.classList.add('active');
+  }
+
+  // Show Explore Properties page
+  function showExplorePage() {
+    headerTitle.textContent = 'Explore Properties';
+    mainContent.innerHTML = `
+      <section id="search-filters">
+        <div class="filter-group">
+          <label for="search-location">Location</label>
+          <input type="text" id="search-location" placeholder="Enter location" value="${filterOptions.searchLocation}" />
+        </div>
+        <div class="filter-group">
+          <label for="filter-property-type">Property Type</label>
+          <select id="filter-property-type">
+            <option value="any">Any</option>
+            <option value="house">House</option>
+            <option value="flat">Flat</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filter-sale-rent">Sale or Rent</label>
+          <select id="filter-sale-rent">
+            <option value="any">Any</option>
+            <option value="sale">Sale</option>
+            <option value="rent">Rent</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filter-bedrooms">Bedrooms</label>
+          <select id="filter-bedrooms">
+            <option value="any">Any</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4plus">4+</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filter-furnished">Furnished</label>
+          <select id="filter-furnished">
+            <option value="any">Any</option>
+            <option value="true">Furnished</option>
+            <option value="false">Unfurnished</option>
+          </select>
+        </div>
+        <button id="apply-filters-btn" class="btn-primary">Apply Filters</button>
+      </section>
+      <section id="properties-list"></section>
+    `;
+
+    document.getElementById('filter-property-type').value = filterOptions.propertyType;
+    document.getElementById('filter-sale-rent').value = filterOptions.saleOrRent;
+    document.getElementById('filter-bedrooms').value = filterOptions.bedrooms;
+    document.getElementById('filter-furnished').value = filterOptions.furnished;
+
+    document.getElementById('apply-filters-btn').onclick = () => {
+      applyFilters();
+      renderPropertiesList();
+    };
+    renderPropertiesList();
+  }
+
+  // Apply filters to filterOptions
+  function applyFilters() {
+    filterOptions.searchLocation = document.getElementById('search-location').value.trim();
+    filterOptions.propertyType = document.getElementById('filter-property-type').value;
+    filterOptions.saleOrRent = document.getElementById('filter-sale-rent').value;
+    filterOptions.bedrooms = document.getElementById('filter-bedrooms').value;
+    filterOptions.furnished = document.getElementById('filter-furnished').value;
+  }
+
+  // Render the properties filtered and as cards
+  function renderPropertiesList() {
+    const container = document.getElementById('properties-list');
+    container.innerHTML = '';
+    const filtered = properties.filter(prop => {
+      if(filterOptions.searchLocation && !prop.location.toLowerCase().includes(filterOptions.searchLocation.toLowerCase())) return false;
+      if(filterOptions.propertyType !== 'any') {
+        if(filterOptions.propertyType === 'house' && !prop.title.toLowerCase().includes('house')) return false;
+        if(filterOptions.propertyType === 'flat' && !prop.title.toLowerCase().includes('apartment') && !prop.title.toLowerCase().includes('flat')) return false;
+      }
+      if(filterOptions.saleOrRent !== 'any' && prop.saleOrRent !== filterOptions.saleOrRent) return false;
+      if(filterOptions.bedrooms !== 'any') {
+        if(filterOptions.bedrooms === '4plus' && prop.bedrooms < 4) return false;
+        else if(filterOptions.bedrooms !== '4plus' && prop.bedrooms !== parseInt(filterOptions.bedrooms)) return false;
+      }
+      if(filterOptions.furnished !== 'any') {
+        if((filterOptions.furnished === 'true' && !prop.furnished) || (filterOptions.furnished === 'false' && prop.furnished)) return false;
+      }
+      return true;
+    });
+    if(filtered.length === 0) {
+      container.innerHTML = '<p>No properties found with the selected filters.</p>';
+      return;
+    }
+    filtered.forEach(prop => {
+      const card = document.createElement('article');
+      card.className = 'property-card';
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', `${prop.title} in ${prop.location}, priced ${formatPrice(prop.price)}`);
+      card.innerHTML = `
+        <img src="${prop.images[0]}" alt="${prop.title} Image"/>
+        <div class="property-info">
+          <h3 class="property-title">${prop.title}</h3>
+          <div class="property-details">${formatPrice(prop.price)} • ${prop.bedrooms} bd • ${prop.size} sqft</div>
+          <div class="property-details">${prop.location} • ${prop.saleOrRent === 'sale' ? 'For Sale' : 'For Rent'}</div>
+        </div>
+      `;
+      card.onclick = () => showPropertyDetails(prop.id);
+      container.appendChild(card);
+    });
+  }
+
+  // Show Property details page
+  function showPropertyDetails(propertyId) {
+    const prop = properties.find(p => p.id === propertyId);
+    if(!prop) return;
+    recentlyVisited = recentlyVisited.filter(id => id !== propertyId);
+    recentlyVisited.unshift(propertyId);
+    if(recentlyVisited.length > 10) recentlyVisited.pop();
+    saveToStorage();
+
+    headerTitle.textContent = prop.title;
+    mainContent.innerHTML = `
+      <section id="property-details">
+        <div style="overflow-x: auto; white-space: nowrap; margin-bottom: 1rem;">
+          ${prop.images.map(img => `<img src="${img}" alt="${prop.title} Image" style="width:310px; height:auto; border-radius:6px; margin-right: 0.5rem;">`).join('')}
+        </div>
+        <h2>${prop.title}</h2>
+        <p><strong>Price:</strong> ${formatPrice(prop.price)}</p>
+        <p><strong>Size:</strong> ${prop.size} sqft</p>
+        <p><strong>Location:</strong> ${prop.location}</p>
+        <p><strong>Bedrooms:</strong> ${prop.bedrooms}</p>
+        <p><strong>Furnished:</strong> ${prop.furnished ? 'Yes' : 'No'}</p>
+        <p><strong>Amenities:</strong> ${prop.amenities.join(', ')}</p>
+        <p>${prop.description}</p>
+        <button id="btn-contact-seller" class="btn-primary">Contact Seller / Request Visit</button>
+        <button id="btn-add-favorite" class="btn-primary" style="margin-left:0.5rem;">${favorites.includes(propertyId) ? 'Remove from Favorites' : 'Add to Favorites'}</button>
+        <button id="btn-back" class="link-button" style="margin-top:1rem;">Back to Explore</button>
+      </section>
+    `;
+
+    document.getElementById('btn-contact-seller').onclick = () => alert('Contact feature coming soon!');
+    document.getElementById('btn-add-favorite').onclick = () => {
+      toggleFavorite(propertyId);
+      showPropertyDetails(propertyId);
+    };
+    document.getElementById('btn-back').onclick = () => {
+      showExplorePage();
+      highlightNavButton(navExploreBtn);
+    };
+  }
+
+  // Toggle favorite property
+  function toggleFavorite(propertyId) {
+    if(favorites.includes(propertyId)){
+      favorites = favorites.filter(id => id !== propertyId);
+    } else {
+      favorites.push(propertyId);
+    }
+    saveToStorage();
+  }
+
+  // Show Favorites page
+  function showFavoritesPage() {
+    headerTitle.textContent = 'My Favorites';
+    const favProps = favorites.map(id => properties.find(p => p.id === id)).filter(Boolean);
+    mainContent.innerHTML = `
+      <section id="favorites-list">
+        ${favProps.length === 0 ? '<p>You have no favorite properties yet.</p>' : ''}
+      </section>
+      <button id="btn-back-explore" class="link-button" style="margin-top:1rem;">Back to Explore</button>
+    `;
+    const listContainer = document.getElementById('favorites-list');
+
+    favProps.forEach(prop => {
+      const card = document.createElement('article');
+      card.className = 'property-card';
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', `${prop.title} in ${prop.location}, priced ${formatPrice(prop.price)}`);
+      card.innerHTML = `
+        <img src="${prop.images[0]}" alt="${prop.title} Image"/>
+        <div class="property-info">
+          <h3 class="property-title">${prop.title}</h3>
+          <div class="property-details">${formatPrice(prop.price)} • ${prop.bedrooms} bd • ${prop.size} sqft</div>
+          <div class="property-details">${prop.location} • ${prop.saleOrRent === 'sale' ? 'For Sale' : 'For Rent'}</div>
+        </div>
+      `;
+      card.onclick = () => showPropertyDetails(prop.id);
+      listContainer.appendChild(card);
+    });
+    document.getElementById('btn-back-explore').onclick = () => {
+      showExplorePage();
+      highlightNavButton(navExploreBtn);
+    };
+  }
+
+  // Show Dashboard page
+  function showDashboard() {
+    headerTitle.textContent = 'Dashboard';
+    mainContent.innerHTML = `
+      <section>
+        <h2>Hello, ${currentUser.userType.charAt(0).toUpperCase() + currentUser.userType.slice(1)}!</h2>
+        <p><strong>Email:</strong> ${currentUser.email}</p>
+        <p><strong>Phone:</strong> ${currentUser.phone}</p>
+        <p><strong>User Type:</strong> ${currentUser.userType}</p>
+        <h3>Recently Visited</h3>
+        <ul id="recently-visited-list"></ul>
+      </section>
+    `;
+    const recentList = document.getElementById('recently-visited-list');
+    if(recentlyVisited.length === 0) {
+      recentList.innerHTML = '<li>No recently visited properties.</li>';
+    } else {
+      recentlyVisited.forEach(id => {
+        const prop = properties.find(p => p.id === id);
+        if(prop){
+          const li = document.createElement('li');
+          li.textContent = `${prop.title} (${prop.location})`;
+          li.style.cursor = 'pointer';
+          li.style.color = '#2c3e50';
+          li.addEventListener('click', () => showPropertyDetails(prop.id));
+          recentList.appendChild(li);
+        }
+      });
+    }
+  }
+
+  // Navbar button event handlers
+  navExploreBtn.onclick = () => {
+    showExplorePage();
+    highlightNavButton(navExploreBtn);
+  };
+  navFavoritesBtn.onclick = () => {
+    showFavoritesPage();
+    highlightNavButton(navFavoritesBtn);
+  };
+  navDashboardBtn.onclick = () => {
+    showDashboard();
+    highlightNavButton(navDashboardBtn);
+  };
+  navLogoutBtn.onclick = () => {
+    if(confirm('Are you sure to logout?')){
+      currentUser = null;
+      saveToStorage();
+      bottomNav.classList.add('hidden');
+      showAuthPage();
+    }
+  };
+
+  // Initialization
+  function init() {
+    loadFromStorage();
+    loadMockProperties();
+    if(isLoggedIn()){
+      bottomNav.classList.remove('hidden');
+      showExplorePage();
+      highlightNavButton(navExploreBtn);
+    } else {
+      showAuthPage();
+      bottomNav.classList.add('hidden');
+    }
+  }
+
+  window.onload = init;
+})();
+</script>
+</body>
+</html>
+
